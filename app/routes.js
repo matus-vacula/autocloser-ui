@@ -3,6 +3,7 @@
 // See http://blog.mxstbr.com/2016/01/react-apps-with-pages for more information
 // about the code splitting business
 import { getAsyncInjectors } from 'utils/asyncInjectors';
+import { loadZones } from './containers/HomePage/actions';
 
 const errorLoading = (err) => {
   console.error('Dynamic page loading failed', err); // eslint-disable-line no-console
@@ -32,6 +33,34 @@ export default function createRoutes(store) {
         });
 
         importModules.catch(errorLoading);
+      },
+      async onEnter(nextState, replace, callback) {
+        if (this.loadedSagas) {
+          callback();
+          return;
+        }
+
+        const importModules = Promise.all([
+          import('containers/HomePage/reducer'),
+          import('containers/HomePage/sagas'),
+        ]);
+
+        try {
+          const [reducer, sagas] = await importModules;
+
+          injectReducer('homePage', reducer.default);
+          this.loadedSagas = injectSagas(sagas.default);
+          store.dispatch(loadZones());
+          callback();
+        } catch (e) {
+          errorLoading(e);
+        }
+      },
+      onLeave() {
+        if (this.loadedSagas) {
+          this.loadedSagas.forEach((saga) => saga.cancel());
+          delete this.loadedSagas;
+        }
       },
     }, {
       path: '*',

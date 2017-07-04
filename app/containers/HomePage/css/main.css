@@ -1,12 +1,3 @@
-import React from 'react';
-import * as PropTypes from 'react/lib/ReactPropTypes';
-import { connect } from 'react-redux';
-import { Accordion, AccordionItem, AccordionItemBody, AccordionItemTitle } from 'react-accessible-accordion';
-import styled from 'styled-components';
-import '../../../node_modules/react-accessible-accordion/dist/react-accessible-accordion.css';
-import Zone from './zone';
-
-const MyAccordion = styled.div`
 /**
 * ----------------------------------------------
 * Demo styles
@@ -143,44 +134,3 @@ const MyAccordion = styled.div`
   animation-name: move-up;
   animation-duration: 1.5s;
 }
-`;
-
-export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  render() {
-    console.log(this.props.homePage.get('zones').toJS());
-    const zones = this.props.homePage.get('zones').toJS();
-
-    const accordionItems = zones.map((zone) => (
-      <AccordionItem key={zone.id}>
-        <AccordionItemTitle>
-          <b>Zone ID:</b> {zone.id}
-        </AccordionItemTitle>
-        <AccordionItemBody>
-          <Zone zone={zone} />
-        </AccordionItemBody>
-      </AccordionItem>
-      ));
-
-    return (
-      <div>
-        <h1>Logistics Zone Autocloser</h1>
-        <MyAccordion>
-          <Accordion>
-            {accordionItems}
-          </Accordion>
-        </MyAccordion>
-      </div>
-    );
-  }
-}
-
-HomePage.propTypes = {
-  homePage: PropTypes.object.isRequired,
-};
-
-const mapStateToProps = (state) => ({
-  homePage: state.get('homePage'),
-});
-
-// Wrap the component to inject dispatch and state into it
-export default connect(mapStateToProps, {})(HomePage);
